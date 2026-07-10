@@ -8,10 +8,17 @@ export const getLogicalConnectionName = (route: HighDensityRoute): string =>
 export const findConnectionRouteIndexes = (
   routes: HighDensityRoute[],
   connectionName: string,
-): number[] => routes.flatMap((route, index) => getLogicalConnectionName(route) === connectionName ? [index] : [])
+): number[] =>
+  routes.flatMap((route, index) =>
+    getLogicalConnectionName(route) === connectionName ? [index] : [],
+  )
 
 /** Sum every routed branch belonging to a logical connection. */
 export const getConnectionLength = (
   routes: HighDensityRoute[],
   routeIndexes: number[],
-): number => routeIndexes.reduce((total, routeIndex) => total + getRouteLength(routes[routeIndex]!), 0)
+): number =>
+  routeIndexes.reduce(
+    (total, routeIndex) => total + getRouteLength(routes[routeIndex]!),
+    0,
+  )
