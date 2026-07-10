@@ -68,7 +68,8 @@ const appendSelectedSegmentGraphics = (input: {
   theme: LengthMatchingColorTheme
   graphics: LengthMatchingGraphics
 }): void => {
-  const candidate = input.activePair?.candidates[input.activePair.candidateIndex]
+  const candidate =
+    input.activePair?.candidates[input.activePair.candidateIndex]
   if (!candidate) return
   const route = input.routes[candidate.routeIndex]
   if (!route) return
