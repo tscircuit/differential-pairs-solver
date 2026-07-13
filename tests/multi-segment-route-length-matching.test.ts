@@ -9,7 +9,7 @@ test("rejects a match that requires distributing added length across small segme
   const candidates = createMeanderCandidates({
     routes: params.hdRoutes,
     routeIndexes: [1],
-    maximumDepth: params.maximumMeanderDepth,
+    maximumDepth: sampleProblem.maximumMeanderDepth,
     minimumToothPitch: params.minimumToothPitch,
     maxToothCount: 8,
   })
