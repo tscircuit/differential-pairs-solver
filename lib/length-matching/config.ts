@@ -30,8 +30,7 @@ export const validateAndResolveParams = (
   }
   if (
     params.minMeanderHeight !== undefined &&
-    (!Number.isFinite(params.minMeanderHeight) ||
-      params.minMeanderHeight <= 0)
+    (!Number.isFinite(params.minMeanderHeight) || params.minMeanderHeight <= 0)
   ) {
     throw new Error(
       "LengthMatchingSolver: minMeanderHeight must be a positive finite number",
