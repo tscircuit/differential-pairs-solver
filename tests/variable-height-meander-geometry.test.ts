@@ -43,8 +43,7 @@ test("constructs each meander tooth with its assigned height and rounded turns",
     segmentDirections.slice(1).every((direction, index) => {
       const previousDirection = segmentDirections[index]!
       return (
-        previousDirection.x * direction.x +
-          previousDirection.y * direction.y >
+        previousDirection.x * direction.x + previousDirection.y * direction.y >
         0
       )
     }),

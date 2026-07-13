@@ -25,10 +25,15 @@ const roundMeanderCorners = (points: RoutePoint[]): RoutePoint[] => {
     const previous = points[index - 1]!
     const corner = points[index]!
     const next = points[index + 1]!
-    const incomingLength = Math.hypot(corner.x - previous.x, corner.y - previous.y)
+    const incomingLength = Math.hypot(
+      corner.x - previous.x,
+      corner.y - previous.y,
+    )
     const outgoingLength = Math.hypot(next.x - corner.x, next.y - corner.y)
     if (incomingLength === 0 || outgoingLength === 0)
-      throw new Error("LengthMatchingSolver: meander contains a zero-length segment")
+      throw new Error(
+        "LengthMatchingSolver: meander contains a zero-length segment",
+      )
     const incoming = {
       x: (corner.x - previous.x) / incomingLength,
       y: (corner.y - previous.y) / incomingLength,
