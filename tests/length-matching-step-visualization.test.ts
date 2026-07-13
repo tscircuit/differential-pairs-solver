@@ -13,15 +13,27 @@ test("renders distinct geometry for pair selection, scoring, and completion", ()
   solver.step()
   expect(solver.visualize().lines).toHaveLength(4)
 
-  for (
-    let index = 0;
-    index < 100 && solver.matchedHdRoutes[1]!.route.length === 2;
-    index++
-  )
+  for (let index = 0; index < 100; index++) {
+    const matchedRoute = solver.matchedHdRoutes[1]
+    if (!matchedRoute)
+      throw new Error("Expected the sample fixture to contain a short route")
+    if (matchedRoute.route.length > 2) break
     solver.step()
-  expect(solver.matchedHdRoutes[1]!.route.length).toBeGreaterThan(2)
-  expect(solver.visualize().lines.length).toBeGreaterThan(3)
+  }
+  const matchedRoute = solver.matchedHdRoutes[1]
+  if (!matchedRoute)
+    throw new Error("Expected the sample fixture to contain a short route")
+  expect(matchedRoute.route.length).toBeGreaterThan(2)
+  const scoringLines = solver.visualize().lines
+  if (!scoringLines)
+    throw new Error("Expected scoring visualization lines for the sample route")
+  expect(scoringLines.length).toBeGreaterThan(3)
 
   solver.solve()
-  expect(solver.visualize().lines.length).toBeGreaterThan(3)
+  const completedLines = solver.visualize().lines
+  if (!completedLines)
+    throw new Error(
+      "Expected completed visualization lines for the sample route",
+    )
+  expect(completedLines.length).toBeGreaterThan(3)
 })

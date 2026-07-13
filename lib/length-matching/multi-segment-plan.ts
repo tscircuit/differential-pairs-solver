@@ -86,16 +86,15 @@ export const selectPartialMeanderPlan = (input: {
         (total, attempt) => total + attempt.qualityScore,
         0,
       )
-      const selectedPlanQualityScore = selectedPlan?.attempts.reduce(
+      if (!selectedPlan) {
+        selectedPlan = { attempts: plannedAttempts }
+        break
+      }
+      const selectedPlanQualityScore = selectedPlan.attempts.reduce(
         (total, attempt) => total + attempt.qualityScore,
         0,
       )
-      if (selectedPlan && selectedPlanQualityScore === undefined)
-        throw new Error(
-          "LengthMatchingSolver: selected partial meander plan has no quality score",
-        )
       if (
-        !selectedPlan ||
         plannedAttempts.length < selectedPlan.attempts.length ||
         (plannedAttempts.length === selectedPlan.attempts.length &&
           planQualityScore > selectedPlanQualityScore)

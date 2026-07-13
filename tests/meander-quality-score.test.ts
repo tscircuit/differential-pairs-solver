@@ -8,6 +8,7 @@ test("ranks shallow and even meanders above tall or uneven alternatives", () => 
     segmentLength: 20,
     toothCount: 2,
     toothPitch: 2,
+    heightProfile: "uniform",
   })
   const tallScore = getMeanderQualityScore({
     addedLength: 4,
@@ -15,6 +16,7 @@ test("ranks shallow and even meanders above tall or uneven alternatives", () => 
     segmentLength: 20,
     toothCount: 2,
     toothPitch: 2,
+    heightProfile: "uniform",
   })
   const unevenScore = getMeanderQualityScore({
     addedLength: 4,
@@ -22,6 +24,7 @@ test("ranks shallow and even meanders above tall or uneven alternatives", () => 
     segmentLength: 20,
     toothCount: 2,
     toothPitch: 2,
+    heightProfile: "uniform",
   })
 
   expect(shallowEvenScore).toBeGreaterThan(tallScore)
