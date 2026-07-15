@@ -19,6 +19,7 @@ import {
   evaluateMeanderCandidate,
 } from "./length-matching/meander-candidate"
 import {
+  getMeanderPlanQualityScore,
   getPlannedAttemptTargets,
   getRegressionAttemptKey,
   selectPartialMeanderPlan,
@@ -166,15 +167,20 @@ export class LengthMatchingSolver extends BaseSolver {
               : bestAttempt,
           null,
         )
-      if (bestFullAttempt) {
-        this.acceptAttempt(activePair, bestFullAttempt)
-        return
-      }
       const partialPlan = selectPartialMeanderPlan({
         attempts: activePair.partialAttempts,
         targetAddedLength: activePair.remainingAddedLength,
         lengthTolerance: activePair.pair.lengthTolerance,
       })
+      if (
+        bestFullAttempt &&
+        (!partialPlan ||
+          bestFullAttempt.qualityScore >=
+            getMeanderPlanQualityScore(partialPlan.attempts))
+      ) {
+        this.acceptAttempt(activePair, bestFullAttempt)
+        return
+      }
       if (!partialPlan)
         throw new Error(
           `LengthMatchingSolver: linear regression exhausted all segment/tooth combinations for "${activePair.shorterConnectionName}"; required ${activePair.targetAddedLength.toFixed(4)}mm`,
@@ -226,6 +232,7 @@ export class LengthMatchingSolver extends BaseSolver {
       candidatesTried: this.candidatesTried,
       segmentIndex: candidate.segmentIndex,
       toothCount: candidate.toothCount,
+      toothPitch: candidate.toothPitch,
       placement: candidate.placement,
       predictedScaleFactor: this.currentAttempt.predictedScaleFactor,
       predictedToothDepths: this.currentAttempt.predictedToothDepths,

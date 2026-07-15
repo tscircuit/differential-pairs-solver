@@ -76,6 +76,15 @@ autorouter repository.
 Use the `tscircuit-create-solver` skill when creating another solver or changing
 the solver lifecycle contract.
 
+For meander generation or ranking changes, start with
+`docs/meander-electrical-quality.md`, then use the ownership map in
+`lib/length-matching/README.md`. Candidate pitch generation belongs in
+`meander-candidate.ts`; stackup-independent ranking belongs in
+`meander-quality.ts`; do not describe its score as calculated impedance,
+inductance, or delay. A pitch or score change needs a ranking unit test and an
+end-to-end geometry regression. Use the visualization workflow above when that
+regression changes an SVG snapshot.
+
 ## Writing Tests
 
 When writing visualization snapshot tests, read the `tscircuit-visualization`

@@ -48,15 +48,36 @@ test("derives meander clearance defaults from trace width and accepts overrides"
     minMeanderHeight: 0.9,
   })
 
-  expect(defaultHeightCandidates[0]?.toothPitch).toBeCloseTo(0.9)
+  expect(defaultHeightCandidates[0]?.toothPitch).toBeCloseTo(5)
+  expect(
+    defaultHeightCandidates.some(
+      (candidate) => Math.abs(candidate.toothPitch - Math.sqrt(0.9 * 5)) < 1e-9,
+    ),
+  ).toBe(true)
+  expect(
+    defaultHeightCandidates.some(
+      (candidate) => Math.abs(candidate.toothPitch - 0.9) < 1e-9,
+    ),
+  ).toBe(true)
   expect(defaultHeightCandidates[0]?.minimumHeight).toBeCloseTo(0.45)
-  expect(wideTraceCandidates[0]?.toothPitch).toBeCloseTo(1.2)
+  expect(
+    wideTraceCandidates.some(
+      (candidate) => Math.abs(candidate.toothPitch - 1.2) < 1e-9,
+    ),
+  ).toBe(true)
   expect(wideTraceCandidates[0]?.minimumHeight).toBeCloseTo(0.6)
-  expect(explicitNarrowGapCandidates[0]?.toothPitch).toBeCloseTo(0.6)
-  expect(overriddenCandidates[0]).toMatchObject({
-    toothPitch: 1.1,
-    minimumHeight: 0.9,
-  })
+  expect(
+    explicitNarrowGapCandidates.some(
+      (candidate) => Math.abs(candidate.toothPitch - 0.6) < 1e-9,
+    ),
+  ).toBe(true)
+  expect(
+    overriddenCandidates.some(
+      (candidate) =>
+        Math.abs(candidate.toothPitch - 1.1) < 1e-9 &&
+        Math.abs(candidate.minimumHeight - 0.9) < 1e-9,
+    ),
+  ).toBe(true)
   expect(defaultConfig.minMeanderGap).toBeUndefined()
   expect(() =>
     validateAndResolveParams({

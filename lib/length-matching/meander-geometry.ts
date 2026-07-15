@@ -101,7 +101,8 @@ export const createMeanderReplacement = (
     x: (end.x - start.x) / segmentLength,
     y: (end.y - start.y) / segmentLength,
   }
-  const leadLength = (segmentLength - input.toothCount * input.toothPitch) / 2
+  const occupiedLength = (input.toothCount - 0.5) * input.toothPitch
+  const leadLength = (segmentLength - occupiedLength) / 2
   const replacement: RoutePoint[] = [{ ...start }]
   for (let toothIndex = 0; toothIndex < input.toothCount; toothIndex++) {
     const toothDepth = input.toothDepths[toothIndex]!

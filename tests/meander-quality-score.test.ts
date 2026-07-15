@@ -1,42 +1,73 @@
 import { expect, test } from "bun:test"
-import { getMeanderQualityScore } from "../lib/length-matching/meander-quality"
+import { evaluateMeanderCandidate } from "../lib/length-matching/meander-candidate"
+import type {
+  MeanderHeightProfile,
+  MeanderPlacement,
+  RegressionAttempt,
+} from "../lib/length-matching/internal-types"
+import type { HighDensityRoute } from "../lib/types"
 
-test("prefers a single lobe over multi-lobe or uneven alternatives", () => {
-  const singleLobeScore = getMeanderQualityScore({
-    addedLength: 4,
-    predictedToothDepths: [1.35],
-    segmentLength: 20,
+test("prefers broad distributed meanders over concentrated or compact alternatives", () => {
+  const route: HighDensityRoute = {
+    connectionName: "short-route",
+    traceThickness: 0.15,
+    viaDiameter: 0.6,
+    vias: [],
+    route: [
+      { x: 0, y: 0, z: 0 },
+      { x: 20, y: 0, z: 0 },
+    ],
+  }
+  const evaluate = (input: {
+    toothCount: number
+    toothPitch: number
+    placement: MeanderPlacement
+    heightProfile: MeanderHeightProfile
+  }): RegressionAttempt =>
+    evaluateMeanderCandidate({
+      candidate: {
+        routeIndex: 0,
+        segmentIndex: 0,
+        segmentLength: 20,
+        toothCount: input.toothCount,
+        maximumDepth: 5,
+        minimumHeight: 0.1,
+        toothPitch: input.toothPitch,
+        placement: input.placement,
+        heightProfile: input.heightProfile,
+      },
+      route,
+      connectionName: route.connectionName,
+      targetAddedLength: 3,
+      lengthTolerance: 0.001,
+      isGeometryValid: () => true,
+    })
+  const concentratedAttempt = evaluate({
     toothCount: 1,
     toothPitch: 2,
+    placement: "negative",
     heightProfile: "uniform",
   })
-  const shallowEvenScore = getMeanderQualityScore({
-    addedLength: 4,
-    predictedToothDepths: [0.4, 0.4],
-    segmentLength: 20,
+  const compactAttempt = evaluate({
     toothCount: 2,
     toothPitch: 2,
-    heightProfile: "uniform",
+    placement: "balanced",
+    heightProfile: "tapered",
   })
-  const tallScore = getMeanderQualityScore({
-    addedLength: 4,
-    predictedToothDepths: [3, 3],
-    segmentLength: 20,
+  const relaxedAttempt = evaluate({
     toothCount: 2,
-    toothPitch: 2,
-    heightProfile: "uniform",
-  })
-  const unevenScore = getMeanderQualityScore({
-    addedLength: 4,
-    predictedToothDepths: [0.1, 2],
-    segmentLength: 20,
-    toothCount: 2,
-    toothPitch: 2,
-    heightProfile: "uniform",
+    toothPitch: 4,
+    placement: "balanced",
+    heightProfile: "tapered",
   })
 
-  expect(shallowEvenScore).toBeGreaterThan(tallScore)
-  expect(shallowEvenScore).toBeGreaterThan(unevenScore)
-  expect(singleLobeScore).toBeGreaterThan(shallowEvenScore)
-  expect(tallScore).toBeGreaterThanOrEqual(0)
+  expect(concentratedAttempt.valid).toBe(true)
+  expect(compactAttempt.valid).toBe(true)
+  expect(relaxedAttempt.valid).toBe(true)
+  expect(relaxedAttempt.qualityScore).toBeGreaterThan(
+    concentratedAttempt.qualityScore,
+  )
+  expect(relaxedAttempt.qualityScore).toBeGreaterThan(
+    compactAttempt.qualityScore,
+  )
 })
