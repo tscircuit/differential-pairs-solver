@@ -13,6 +13,7 @@ import type {
 } from "./internal-types"
 
 const DEPTH_SEARCH_ITERATIONS = 32
+const DEFAULT_MIN_MEANDER_GAP = 0.3
 export { replaceSegmentWithMeander } from "./meander-geometry"
 
 const getToothHeightWeights = (input: {
@@ -127,15 +128,17 @@ export const createMeanderCandidates = (input: {
   routeIndexes: number[]
   maximumDepth: number
   minimumToothPitch?: number
-  minMeanderGap: number
+  minMeanderGap?: number
   minMeanderHeight?: number
   maxToothCount: number
 }): SegmentCandidate[] => {
   const candidates: SegmentCandidate[] = []
   for (const routeIndex of input.routeIndexes) {
     const route = input.routes[routeIndex]!
-    const minimumTraceCenterlineSpacing =
-      route.traceThickness + input.minMeanderGap
+    const minMeanderGap =
+      input.minMeanderGap ??
+      Math.max(DEFAULT_MIN_MEANDER_GAP, route.traceThickness * 2)
+    const minimumTraceCenterlineSpacing = route.traceThickness + minMeanderGap
     const toothPitch = Math.max(
       input.minimumToothPitch ?? 0,
       minimumTraceCenterlineSpacing * 2,

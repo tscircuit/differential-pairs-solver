@@ -57,7 +57,7 @@ export type PlannedAttemptTarget = {
 export type LengthMatchingConfig = {
   maximumMeanderDepth: number
   minimumToothPitch?: number
-  minMeanderGap: number
+  minMeanderGap?: number
   minMeanderHeight?: number
   maxToothCount: number
   obstacles: Obstacle[]
