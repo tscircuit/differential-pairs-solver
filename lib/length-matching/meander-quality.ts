@@ -1,10 +1,10 @@
 import type { RegressionAttempt } from "./internal-types"
 
 /**
- * Score a meander from 0 to 100, where higher scores are gentler and more
- * compact. For the same added length, fewer reversals win before shallow depth
- * breaks the tie. The score ranks feasible choices; it is not a manufacturing
- * rule.
+ * Score a meander from 0 to 100 using stackup-independent electrical-risk
+ * proxies. Broad, shallow, distributed tuning wins over a concentrated
+ * hairpin, while excessive bends and abrupt depth changes remain undesirable.
+ * This ranks feasible geometry; it does not predict impedance or delay.
  */
 export const getMeanderQualityScore = (
   input: Pick<
@@ -13,12 +13,16 @@ export const getMeanderQualityScore = (
     | "predictedToothDepths"
     | "segmentLength"
     | "heightProfile"
-    | "toothCount"
     | "toothPitch"
   >,
 ): number => {
-  const nonZeroDepths = input.predictedToothDepths.filter((depth) => depth > 0)
-  if (nonZeroDepths.length === 0) return 0
+  const activeToothIndexes = input.predictedToothDepths.flatMap(
+    (depth, toothIndex) => (depth > 0 ? [toothIndex] : []),
+  )
+  if (activeToothIndexes.length === 0) return 0
+  const nonZeroDepths = activeToothIndexes.map(
+    (toothIndex) => input.predictedToothDepths[toothIndex]!,
+  )
   const maximumDepth = Math.max(...nonZeroDepths)
   const meanDepth =
     nonZeroDepths.reduce((total, depth) => total + depth, 0) /
@@ -29,19 +33,44 @@ export const getMeanderQualityScore = (
       0,
     ) / nonZeroDepths.length,
   )
-  const normalizedDepth = maximumDepth / input.toothPitch
-  const depthPenalty = 45 * (normalizedDepth / (1 + normalizedDepth))
-  const variationPenalty =
-    input.heightProfile === "tapered"
-      ? 0
-      : Math.min(18, (depthVariation / meanDepth) * 18)
-  // A short correction should stay a single smooth lobe whenever it fits.
-  const bendPenalty = 18 * (input.toothCount - 1)
-  const detourPenalty =
-    15 * Math.min(1, input.addedLength / input.segmentLength)
+  const firstActiveToothIndex = activeToothIndexes[0]!
+  const lastActiveToothIndex = activeToothIndexes.at(-1)!
+  const occupiedBaselineLength =
+    (lastActiveToothIndex - firstActiveToothIndex + 1) * input.toothPitch
+  const maximumAspectRatio = maximumDepth / (input.toothPitch / 2)
+  const tuningDensity = input.addedLength / occupiedBaselineLength
+  const aspectRatioPenalty =
+    40 * (maximumAspectRatio / (1 + maximumAspectRatio))
+  const densityPenalty = 30 * (tuningDensity / (1 + tuningDensity))
+  const taperedWeights = input.predictedToothDepths.map((_, toothIndex) =>
+    Math.sin(
+      (Math.PI * (toothIndex + 1)) / (input.predictedToothDepths.length + 1),
+    ),
+  )
+  const maximumTaperedWeight = Math.max(...taperedWeights)
+  const profileError = Math.sqrt(
+    input.predictedToothDepths.reduce((total, depth, toothIndex) => {
+      const expectedDepth =
+        (maximumDepth * taperedWeights[toothIndex]!) / maximumTaperedWeight
+      return total + (depth - expectedDepth) ** 2
+    }, 0) / input.predictedToothDepths.length,
+  )
+  const variationPenalty = Math.min(
+    10,
+    ((input.heightProfile === "tapered" ? profileError : depthVariation) /
+      meanDepth) *
+      10,
+  )
+  const bendPenalty = 2 * (nonZeroDepths.length - 1)
+  const detourPenalty = 7 * Math.min(1, input.addedLength / input.segmentLength)
   const score = Math.max(
     0,
-    100 - depthPenalty - variationPenalty - bendPenalty - detourPenalty,
+    100 -
+      aspectRatioPenalty -
+      densityPenalty -
+      variationPenalty -
+      bendPenalty -
+      detourPenalty,
   )
   return Math.round(score * 1_000_000) / 1_000_000
 }

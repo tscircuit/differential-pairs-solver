@@ -12,9 +12,11 @@ test("matches a shorter route using a length-fitted curved meander", () => {
 
   expect(solver.solved).toBe(true)
   expect(solver.matchedHdRoutes[1]!.route.length).toBeGreaterThan(6)
-  expect(
-    Math.min(...solver.matchedHdRoutes[1]!.route.map((point) => point.y)),
-  ).toBeLessThan(-3)
+  const maximumExcursion = Math.min(
+    ...solver.matchedHdRoutes[1]!.route.map((point) => point.y),
+  )
+  expect(maximumExcursion).toBeLessThan(-2.5)
+  expect(maximumExcursion).toBeGreaterThan(-3)
   expect(getRouteLength(solver.matchedHdRoutes[1]!)).toBeCloseTo(
     getRouteLength(solver.matchedHdRoutes[0]!),
     3,

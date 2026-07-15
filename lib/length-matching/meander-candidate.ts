@@ -159,22 +159,36 @@ export const createMeanderCandidates = (input: {
         input.maxToothCount,
       )
       for (let toothCount = 1; toothCount <= toothCapacity; toothCount++) {
+        // Explore the open segment as well as the minimum-clearance footprint.
+        // The geometric mean supplies one deterministic constrained compromise.
+        const maximumRelaxedPitch = segmentLength / (toothCount + 1)
+        const pitchOptions = [
+          maximumRelaxedPitch,
+          Math.sqrt(toothPitch * maximumRelaxedPitch),
+          toothPitch,
+        ].filter(
+          (pitch, pitchIndex, pitches) =>
+            pitches.findIndex(
+              (otherPitch) => Math.abs(otherPitch - pitch) < 1e-9,
+            ) === pitchIndex,
+        )
         const placements: MeanderPlacement[] =
           toothCount % 2 === 0
             ? ["balanced", "negative", "positive"]
             : ["negative", "positive"]
-        for (const placement of placements)
-          candidates.push({
-            routeIndex,
-            segmentIndex,
-            segmentLength,
-            toothCount,
-            maximumDepth: input.maximumDepth,
-            minimumHeight,
-            toothPitch,
-            placement,
-            heightProfile: toothCount > 1 ? "tapered" : "uniform",
-          })
+        for (const candidatePitch of pitchOptions)
+          for (const placement of placements)
+            candidates.push({
+              routeIndex,
+              segmentIndex,
+              segmentLength,
+              toothCount,
+              maximumDepth: input.maximumDepth,
+              minimumHeight,
+              toothPitch: candidatePitch,
+              placement,
+              heightProfile: toothCount > 1 ? "tapered" : "uniform",
+            })
       }
     }
   }
@@ -187,6 +201,7 @@ export const createMeanderCandidates = (input: {
     (left, right) =>
       left.toothCount - right.toothCount ||
       placementPriority[left.placement] - placementPriority[right.placement] ||
+      right.toothPitch - left.toothPitch ||
       right.segmentLength - left.segmentLength,
   )
 }

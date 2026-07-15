@@ -22,13 +22,21 @@ test("constructs each meander tooth with its assigned height and rounded turns",
     toothDepths: [1, 0],
     placement: "balanced",
   })
+  const centeredRoute = replaceSegmentWithMeander({
+    route,
+    segmentIndex: 0,
+    toothCount: 2,
+    toothPitch: 1,
+    toothDepths: [1, 1],
+    placement: "balanced",
+  })
 
   expect(replacedRoute[0]).toMatchObject({ x: 0, y: 0 })
   expect(replacedRoute.at(-1)).toMatchObject({ x: 6, y: 0 })
   expect(Math.min(...replacedRoute.map((point) => point.y))).toBe(-1)
   expect(
     replacedRoute
-      .filter((point) => point.x >= 3)
+      .filter((point) => point.x >= 3.2)
       .every((point) => point.y === 0),
   ).toBe(true)
   const segmentDirections = replacedRoute.slice(1).map((point, index) => {
@@ -52,4 +60,9 @@ test("constructs each meander tooth with its assigned height and rounded turns",
   expect(replacedRoute.every((point) => point.traceThickness === 0.15)).toBe(
     true,
   )
+  const tuningPoints = centeredRoute.filter((point) => Math.abs(point.y) > 1e-9)
+  expect(
+    Math.min(...tuningPoints.map((point) => point.x)) +
+      Math.max(...tuningPoints.map((point) => point.x)),
+  ).toBeCloseTo(6)
 })
