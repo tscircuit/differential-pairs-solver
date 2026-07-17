@@ -14,8 +14,7 @@ const hasProtectedEdgeMetadata = (
   start: RoutePoint,
   end: RoutePoint,
 ): boolean => {
-  const effectiveTraceThickness =
-    start.traceThickness ?? route.traceThickness
+  const effectiveTraceThickness = start.traceThickness ?? route.traceThickness
   return (
     start.toNextSegmentType !== undefined ||
     start.insideJumperPad === true ||
@@ -57,8 +56,7 @@ export const getTunableStraightRouteSpans = (
     while (direction.length === 0 && endIndex < route.route.length - 1) {
       const current = route.route[endIndex]!
       const next = route.route[endIndex + 1]!
-      const nextTraceThickness =
-        current.traceThickness ?? route.traceThickness
+      const nextTraceThickness = current.traceThickness ?? route.traceThickness
       if (
         current.z !== start.z ||
         next.z !== start.z ||
@@ -76,8 +74,7 @@ export const getTunableStraightRouteSpans = (
     while (endIndex < route.route.length - 1) {
       const current = route.route[endIndex]!
       const next = route.route[endIndex + 1]!
-      const nextTraceThickness =
-        current.traceThickness ?? route.traceThickness
+      const nextTraceThickness = current.traceThickness ?? route.traceThickness
       if (
         current.z !== start.z ||
         next.z !== start.z ||
@@ -92,8 +89,7 @@ export const getTunableStraightRouteSpans = (
       }
       const cross =
         direction.x * nextDirection.y - direction.y * nextDirection.x
-      const dot =
-        direction.x * nextDirection.x + direction.y * nextDirection.y
+      const dot = direction.x * nextDirection.x + direction.y * nextDirection.y
       if (
         Math.abs(cross) > direction.length * nextDirection.length * 1e-9 ||
         dot <= 0

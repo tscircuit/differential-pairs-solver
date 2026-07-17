@@ -48,7 +48,11 @@ test("partitions tunable spans at geometry and semantic boundaries", (): void =>
         { x: 1, y: 1, z: 1 },
         { x: 2, y: 1, z: 1 },
       ]),
-      spans: [[0, 1], [1, 2], [3, 4]],
+      spans: [
+        [0, 1],
+        [1, 2],
+        [3, 4],
+      ],
     },
     {
       name: "zero-length points are absorbed",

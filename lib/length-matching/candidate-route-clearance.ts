@@ -36,7 +36,11 @@ export const isCandidateRouteClear = (
       input.obstacleMargin,
   }))
   const lastCandidateSegment = input.meanderPoints.length - 2
-  for (let candidateIndex = 0; candidateIndex <= lastCandidateSegment; candidateIndex++) {
+  for (
+    let candidateIndex = 0;
+    candidateIndex <= lastCandidateSegment;
+    candidateIndex++
+  ) {
     const start = input.meanderPoints[candidateIndex]!
     const end = input.meanderPoints[candidateIndex + 1]!
     const isFirstSegment = candidateIndex === 0
@@ -47,7 +51,11 @@ export const isCandidateRouteClear = (
       sameConnection,
       requiredDistance,
     } of otherRouteChecks) {
-      for (let otherIndex = 0; otherIndex < otherRoute.route.length - 1; otherIndex++) {
+      for (
+        let otherIndex = 0;
+        otherIndex < otherRoute.route.length - 1;
+        otherIndex++
+      ) {
         if (
           sameRoute &&
           otherIndex >= input.span.startIndex &&

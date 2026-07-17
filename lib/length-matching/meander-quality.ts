@@ -62,8 +62,7 @@ export const getMeanderQualityScore = (
       10,
   )
   const bendPenalty = 2 * (nonZeroDepths.length - 1)
-  const detourPenalty =
-    7 * Math.min(1, input.addedLength / input.span.length)
+  const detourPenalty = 7 * Math.min(1, input.addedLength / input.span.length)
   const score = Math.max(
     0,
     100 -
