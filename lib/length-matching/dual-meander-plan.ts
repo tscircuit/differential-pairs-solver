@@ -147,10 +147,7 @@ const getRankedOptionPairs = function* <Left, Right>(input: {
   }
   while (heap.length > 0) {
     const cursor = popRankedPairCursor(heap)!
-    yield [
-      leftOptions[cursor.leftIndex]!,
-      rightOptions[cursor.rightIndex]!,
-    ]
+    yield [leftOptions[cursor.leftIndex]!, rightOptions[cursor.rightIndex]!]
     const nextRightIndex = cursor.rightIndex + 1
     const nextRight = rightOptions[nextRightIndex]
     if (!nextRight) continue
@@ -258,10 +255,7 @@ const getAttemptPlans = (
     const segmentKey = `${minimumAttempt.candidate.routeIndex}:${minimumAttempt.candidate.segmentIndex}`
     const attemptsBySegment = attemptsByStyle.get(styleKey)
     if (!attemptsBySegment) {
-      attemptsByStyle.set(
-        styleKey,
-        new Map([[segmentKey, [minimumAttempt]]]),
-      )
+      attemptsByStyle.set(styleKey, new Map([[segmentKey, [minimumAttempt]]]))
       continue
     }
     const segmentAttempts = attemptsBySegment.get(segmentKey)
@@ -285,10 +279,7 @@ const getAttemptPlans = (
             : bestAttempt,
         ),
       }))
-      .sort(
-        (left, right) =>
-          right.maximumAddedLength - left.maximumAddedLength,
-      )
+      .sort((left, right) => right.maximumAddedLength - left.maximumAddedLength)
     for (const segmentOption of segmentOptions) {
       plans.push({
         attempts: [segmentOption.rankingAttempt],
@@ -402,7 +393,9 @@ const fitAttemptPlan = (input: {
   for (const plannedAttempt of plannedAttempts) {
     const firstCandidate = plannedAttempt.attemptOptions[0]?.candidate
     if (!firstCandidate)
-      throw new Error("LengthMatchingSolver: empty dual-meander segment options")
+      throw new Error(
+        "LengthMatchingSolver: empty dual-meander segment options",
+      )
     const route = routes[firstCandidate.routeIndex]
     if (!route)
       throw new Error(
@@ -414,7 +407,7 @@ const fitAttemptPlan = (input: {
         minimumAttempt.attempt.addedLength - input.config.lengthTolerance >
           plannedAttempt.targetAddedLength ||
         minimumAttempt.attempt.maximumAddedLength +
-            input.config.lengthTolerance <
+          input.config.lengthTolerance <
           plannedAttempt.targetAddedLength
       )
         continue
@@ -440,7 +433,8 @@ const fitAttemptPlan = (input: {
       })
       if (
         attempt.valid &&
-        (!selectedAttempt || attempt.qualityScore > selectedAttempt.qualityScore)
+        (!selectedAttempt ||
+          attempt.qualityScore > selectedAttempt.qualityScore)
       )
         selectedAttempt = attempt
     }
@@ -452,7 +446,10 @@ const fitAttemptPlan = (input: {
     (total, attempt) => total + attempt.addedLength,
     0,
   )
-  if (Math.abs(addedLength - input.targetAddedLength) > input.config.lengthTolerance)
+  if (
+    Math.abs(addedLength - input.targetAddedLength) >
+    input.config.lengthTolerance
+  )
     return null
   const firstAttempt = attempts[0]
   if (!firstAttempt)
@@ -603,7 +600,10 @@ export const selectDualMeanderPlan = (
     getLeftQualityScore: (plan) => plan.rankingQualityScore,
     getRightQualityScore: (plan) => plan.rankingQualityScore,
   })
-  for (const [longerMinimumPlan, shorterMinimumPlan] of rankedAttemptPlanPairs) {
+  for (const [
+    longerMinimumPlan,
+    shorterMinimumPlan,
+  ] of rankedAttemptPlanPairs) {
     if (
       longerMinimumPlan.attempts.length === 1 &&
       shorterMinimumPlan.attempts.length === 1
@@ -652,10 +652,7 @@ export const selectDualMeanderPlan = (
       getConnectionLength(shorterPlan.routes, shorterRouteIndexes) -
         getConnectionLength(shorterPlan.routes, longerRouteIndexes),
     )
-    const allAttempts = [
-      ...longerPlan.attempts,
-      ...shorterPlan.attempts,
-    ]
+    const allAttempts = [...longerPlan.attempts, ...shorterPlan.attempts]
     if (
       measuredDifference > input.lengthTolerance ||
       allAttempts.some(

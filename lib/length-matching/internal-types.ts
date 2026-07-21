@@ -29,28 +29,25 @@ type RegressionAttemptOutcome =
 /** Measured regression result retained for solver diagnostics and visualization. */
 export type RegressionAttempt = SegmentCandidate &
   RegressionAttemptOutcome & {
-  connectionName: string
-  maximumToothDepths: number[]
-  sampleScaleFactors: [number, number]
-  sampleAddedLengths: [number, number]
-  slope: number
-  intercept: number
-  predictedScaleFactor: number
-  predictedToothDepths: number[]
-  predictedRoute: RoutePoint[]
-  addedLength: number
-  maximumAddedLength: number
-  resultingError: number
-  testedSegment: [RoutePoint, RoutePoint]
-  meanderPoints: RoutePoint[]
-  qualityScore: number
-}
+    connectionName: string
+    maximumToothDepths: number[]
+    sampleScaleFactors: [number, number]
+    sampleAddedLengths: [number, number]
+    slope: number
+    intercept: number
+    predictedScaleFactor: number
+    predictedToothDepths: number[]
+    predictedRoute: RoutePoint[]
+    addedLength: number
+    maximumAddedLength: number
+    resultingError: number
+    testedSegment: [RoutePoint, RoutePoint]
+    meanderPoints: RoutePoint[]
+    qualityScore: number
+  }
 
 /** A fitted meander attempt that satisfies every geometry and length constraint. */
-export type ValidRegressionAttempt = Extract<
-  RegressionAttempt,
-  { valid: true }
->
+export type ValidRegressionAttempt = Extract<RegressionAttempt, { valid: true }>
 
 export type ActivePair = {
   pair: DifferentialPair
