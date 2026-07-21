@@ -16,8 +16,19 @@ export type SegmentCandidate = {
   heightProfile: MeanderHeightProfile
 }
 
+type RegressionAttemptInvalidReason =
+  | "invalid-scale"
+  | "below-minimum-height"
+  | "target-error"
+  | "invalid-geometry"
+
+type RegressionAttemptOutcome =
+  | { valid: true; invalidReason: null }
+  | { valid: false; invalidReason: RegressionAttemptInvalidReason }
+
 /** Measured regression result retained for solver diagnostics and visualization. */
-export type RegressionAttempt = SegmentCandidate & {
+export type RegressionAttempt = SegmentCandidate &
+  RegressionAttemptOutcome & {
   connectionName: string
   maximumToothDepths: number[]
   sampleScaleFactors: [number, number]
@@ -28,15 +39,23 @@ export type RegressionAttempt = SegmentCandidate & {
   predictedToothDepths: number[]
   predictedRoute: RoutePoint[]
   addedLength: number
+  maximumAddedLength: number
   resultingError: number
   testedSegment: [RoutePoint, RoutePoint]
   meanderPoints: RoutePoint[]
   qualityScore: number
-  valid: boolean
 }
+
+/** A fitted meander attempt that satisfies every geometry and length constraint. */
+export type ValidRegressionAttempt = Extract<
+  RegressionAttempt,
+  { valid: true }
+>
 
 export type ActivePair = {
   pair: DifferentialPair
+  longerConnectionName: string
+  longerRouteIndexes: number[]
   shorterConnectionName: string
   targetAddedLength: number
   remainingAddedLength: number
@@ -46,6 +65,7 @@ export type ActivePair = {
   partialAttempts: RegressionAttempt[]
   fullAttempts: RegressionAttempt[]
   plannedAttemptTargets: Map<string, PlannedAttemptTarget> | null
+  hasMinimumHeightBlockedAttempt: boolean
 }
 
 export type PlannedAttemptTarget = {
