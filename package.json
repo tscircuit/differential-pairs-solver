@@ -17,7 +17,7 @@
     "build": "tsup lib/index.ts --format esm --dts --sourcemap",
     "test": "bun test --timeout 9999999",
     "typecheck": "tsc --noEmit",
-    "typecheck:structure": "bun run --parallel --no-exit-on-error typecheck:files typecheck:folders",
+    "typecheck:structure": "bun run typecheck:files && bun run typecheck:folders",
     "typecheck:files": "eslint .",
     "typecheck:folders": "lintp || echo '::warning title=Folder structure advisory::One or more folders contain over 10 TypeScript files.'",
     "format": "biome format --write .",
