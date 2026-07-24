@@ -71,178 +71,182 @@ type RankedPairCursor = {
 export const selectDualMeanderPlan = (
   input: DualMeanderPlanInput,
 ): DualMeanderPlan | null => {
-const hasHigherCursorPriority = (
-  left: RankedPairCursor,
-  right: RankedPairCursor,
-): boolean => {
-  if (left.rankingQualityScore !== right.rankingQualityScore)
-    return left.rankingQualityScore > right.rankingQualityScore
-  if (left.leftIndex !== right.leftIndex)
-    return left.leftIndex < right.leftIndex
-  return left.rightIndex < right.rightIndex
-}
-
-const pushRankedPairCursor = (
-  heap: RankedPairCursor[],
-  cursor: RankedPairCursor,
-): void => {
-  heap.push(cursor)
-  let index = heap.length - 1
-  while (index > 0) {
-    const parentIndex = Math.floor((index - 1) / 2)
-    const parent = heap[parentIndex]!
-    if (hasHigherCursorPriority(parent, cursor)) break
-    heap[index] = parent
-    index = parentIndex
+  const hasHigherCursorPriority = (
+    left: RankedPairCursor,
+    right: RankedPairCursor,
+  ): boolean => {
+    if (left.rankingQualityScore !== right.rankingQualityScore)
+      return left.rankingQualityScore > right.rankingQualityScore
+    if (left.leftIndex !== right.leftIndex)
+      return left.leftIndex < right.leftIndex
+    return left.rightIndex < right.rightIndex
   }
-  heap[index] = cursor
-}
 
-const popRankedPairCursor = (
-  heap: RankedPairCursor[],
-): RankedPairCursor | undefined => {
-  const first = heap[0]
-  const last = heap.pop()
-  if (!first || !last || heap.length === 0) return first
-  let index = 0
-  while (true) {
-    const leftIndex = index * 2 + 1
-    const rightIndex = leftIndex + 1
-    if (leftIndex >= heap.length) break
-    const higherChildIndex =
-      rightIndex < heap.length &&
-      hasHigherCursorPriority(heap[rightIndex]!, heap[leftIndex]!)
-        ? rightIndex
-        : leftIndex
-    const higherChild = heap[higherChildIndex]!
-    if (hasHigherCursorPriority(last, higherChild)) break
-    heap[index] = higherChild
-    index = higherChildIndex
+  const pushRankedPairCursor = (
+    heap: RankedPairCursor[],
+    cursor: RankedPairCursor,
+  ): void => {
+    heap.push(cursor)
+    let index = heap.length - 1
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2)
+      const parent = heap[parentIndex]!
+      if (hasHigherCursorPriority(parent, cursor)) break
+      heap[index] = parent
+      index = parentIndex
+    }
+    heap[index] = cursor
   }
-  heap[index] = last
-  return first
-}
 
-const getRankedOptionPairs = function* <Left, Right>(input: {
-  leftOptions: Left[]
-  rightOptions: Right[]
-  getLeftQualityScore: (option: Left) => number
-  getRightQualityScore: (option: Right) => number
-}): Generator<readonly [Left, Right]> {
-  const leftOptions = [...input.leftOptions].sort(
-    (left, right) =>
-      input.getLeftQualityScore(right) - input.getLeftQualityScore(left),
-  )
-  const rightOptions = [...input.rightOptions].sort(
-    (left, right) =>
-      input.getRightQualityScore(right) - input.getRightQualityScore(left),
-  )
-  const heap: RankedPairCursor[] = []
-  for (let leftIndex = 0; leftIndex < leftOptions.length; leftIndex++) {
-    const right = rightOptions[0]
-    if (!right) break
-    pushRankedPairCursor(heap, {
-      leftIndex,
-      rightIndex: 0,
-      rankingQualityScore:
-        (input.getLeftQualityScore(leftOptions[leftIndex]!) +
-          input.getRightQualityScore(right)) /
-        2,
-    })
+  const popRankedPairCursor = (
+    heap: RankedPairCursor[],
+  ): RankedPairCursor | undefined => {
+    const first = heap[0]
+    const last = heap.pop()
+    if (!first || !last || heap.length === 0) return first
+    let index = 0
+    while (true) {
+      const leftIndex = index * 2 + 1
+      const rightIndex = leftIndex + 1
+      if (leftIndex >= heap.length) break
+      const higherChildIndex =
+        rightIndex < heap.length &&
+        hasHigherCursorPriority(heap[rightIndex]!, heap[leftIndex]!)
+          ? rightIndex
+          : leftIndex
+      const higherChild = heap[higherChildIndex]!
+      if (hasHigherCursorPriority(last, higherChild)) break
+      heap[index] = higherChild
+      index = higherChildIndex
+    }
+    heap[index] = last
+    return first
   }
-  while (heap.length > 0) {
-    const cursor = popRankedPairCursor(heap)!
-    yield [leftOptions[cursor.leftIndex]!, rightOptions[cursor.rightIndex]!]
-    const nextRightIndex = cursor.rightIndex + 1
-    const nextRight = rightOptions[nextRightIndex]
-    if (!nextRight) continue
-    pushRankedPairCursor(heap, {
-      leftIndex: cursor.leftIndex,
-      rightIndex: nextRightIndex,
-      rankingQualityScore:
-        (input.getLeftQualityScore(leftOptions[cursor.leftIndex]!) +
-          input.getRightQualityScore(nextRight)) /
-        2,
-    })
-  }
-}
 
-const replaceAttemptRoute = (
-  routes: HighDensityRoute[],
-  attempt: RegressionAttempt,
-): HighDensityRoute[] => {
-  const route = routes[attempt.routeIndex]
-  if (!route)
-    throw new Error(
-      `LengthMatchingSolver: dual meander references missing route ${attempt.routeIndex}`,
+  const getRankedOptionPairs = function* <Left, Right>(input: {
+    leftOptions: Left[]
+    rightOptions: Right[]
+    getLeftQualityScore: (option: Left) => number
+    getRightQualityScore: (option: Right) => number
+  }): Generator<readonly [Left, Right]> {
+    const leftOptions = [...input.leftOptions].sort(
+      (left, right) =>
+        input.getLeftQualityScore(right) - input.getLeftQualityScore(left),
     )
-  const updatedRoutes = [...routes]
-  updatedRoutes[attempt.routeIndex] = {
-    ...route,
-    route: attempt.predictedRoute,
-  }
-  return updatedRoutes
-}
-
-const isAttemptGeometryValid = (input: {
-  attempt: RegressionAttempt
-  routes: HighDensityRoute[]
-  config: Pick<
-    DualMeanderPlanInput,
-    "obstacles" | "bounds" | "layerCount" | "obstacleMargin"
-  >
-}): boolean => {
-  const route = input.routes[input.attempt.routeIndex]
-  if (!route)
-    throw new Error(
-      `LengthMatchingSolver: cannot validate missing dual-meander route ${input.attempt.routeIndex}`,
+    const rightOptions = [...input.rightOptions].sort(
+      (left, right) =>
+        input.getRightQualityScore(right) - input.getRightQualityScore(left),
     )
-  return isCandidateGeometryValid({
-    route,
-    meanderPoints: input.attempt.meanderPoints,
-    routedRoutes: input.routes,
-    ...input.config,
-  })
-}
+    const heap: RankedPairCursor[] = []
+    for (let leftIndex = 0; leftIndex < leftOptions.length; leftIndex++) {
+      const right = rightOptions[0]
+      if (!right) break
+      pushRankedPairCursor(heap, {
+        leftIndex,
+        rightIndex: 0,
+        rankingQualityScore:
+          (input.getLeftQualityScore(leftOptions[leftIndex]!) +
+            input.getRightQualityScore(right)) /
+          2,
+      })
+    }
+    while (heap.length > 0) {
+      const cursor = popRankedPairCursor(heap)!
+      yield [leftOptions[cursor.leftIndex]!, rightOptions[cursor.rightIndex]!]
+      const nextRightIndex = cursor.rightIndex + 1
+      const nextRight = rightOptions[nextRightIndex]
+      if (!nextRight) continue
+      pushRankedPairCursor(heap, {
+        leftIndex: cursor.leftIndex,
+        rightIndex: nextRightIndex,
+        rankingQualityScore:
+          (input.getLeftQualityScore(leftOptions[cursor.leftIndex]!) +
+            input.getRightQualityScore(nextRight)) /
+          2,
+      })
+    }
+  }
 
-const getMinimumAttempts = (input: {
-  candidates: SegmentCandidate[]
-  routes: HighDensityRoute[]
-  connectionName: string
-  counterpartConnectionName: string
-  config: Pick<
-    DualMeanderPlanInput,
-    "lengthTolerance" | "obstacles" | "bounds" | "layerCount" | "obstacleMargin"
-  >
-}): MinimumAttempt[] => {
-  const routesWithoutCounterpart = input.routes.filter(
-    (route) =>
-      getLogicalConnectionName(route) !== input.counterpartConnectionName,
-  )
-  const attempts: MinimumAttempt[] = []
-  for (const candidate of input.candidates) {
-    const route = input.routes[candidate.routeIndex]
+  const replaceAttemptRoute = (
+    routes: HighDensityRoute[],
+    attempt: RegressionAttempt,
+  ): HighDensityRoute[] => {
+    const route = routes[attempt.routeIndex]
     if (!route)
       throw new Error(
-        `LengthMatchingSolver: dual-meander candidate references missing route ${candidate.routeIndex}`,
+        `LengthMatchingSolver: dual meander references missing route ${attempt.routeIndex}`,
       )
-    const attempt = evaluateMinimumMeanderCandidate({
-      candidate,
-      route,
-      connectionName: input.connectionName,
-      lengthTolerance: input.config.lengthTolerance,
-      isGeometryValid: (meanderPoints: RoutePoint[]) =>
-        isCandidateGeometryValid({
-          route,
-          meanderPoints,
-          routedRoutes: routesWithoutCounterpart,
-          ...input.config,
-        }),
-    })
-    if (attempt) attempts.push({ candidate, attempt })
+    const updatedRoutes = [...routes]
+    updatedRoutes[attempt.routeIndex] = {
+      ...route,
+      route: attempt.predictedRoute,
+    }
+    return updatedRoutes
   }
-  return attempts
-}
+
+  const isAttemptGeometryValid = (input: {
+    attempt: RegressionAttempt
+    routes: HighDensityRoute[]
+    config: Pick<
+      DualMeanderPlanInput,
+      "obstacles" | "bounds" | "layerCount" | "obstacleMargin"
+    >
+  }): boolean => {
+    const route = input.routes[input.attempt.routeIndex]
+    if (!route)
+      throw new Error(
+        `LengthMatchingSolver: cannot validate missing dual-meander route ${input.attempt.routeIndex}`,
+      )
+    return isCandidateGeometryValid({
+      route,
+      meanderPoints: input.attempt.meanderPoints,
+      routedRoutes: input.routes,
+      ...input.config,
+    })
+  }
+
+  const getMinimumAttempts = (input: {
+    candidates: SegmentCandidate[]
+    routes: HighDensityRoute[]
+    connectionName: string
+    counterpartConnectionName: string
+    config: Pick<
+      DualMeanderPlanInput,
+      | "lengthTolerance"
+      | "obstacles"
+      | "bounds"
+      | "layerCount"
+      | "obstacleMargin"
+    >
+  }): MinimumAttempt[] => {
+    const routesWithoutCounterpart = input.routes.filter(
+      (route) =>
+        getLogicalConnectionName(route) !== input.counterpartConnectionName,
+    )
+    const attempts: MinimumAttempt[] = []
+    for (const candidate of input.candidates) {
+      const route = input.routes[candidate.routeIndex]
+      if (!route)
+        throw new Error(
+          `LengthMatchingSolver: dual-meander candidate references missing route ${candidate.routeIndex}`,
+        )
+      const attempt = evaluateMinimumMeanderCandidate({
+        candidate,
+        route,
+        connectionName: input.connectionName,
+        lengthTolerance: input.config.lengthTolerance,
+        isGeometryValid: (meanderPoints: RoutePoint[]) =>
+          isCandidateGeometryValid({
+            route,
+            meanderPoints,
+            routedRoutes: routesWithoutCounterpart,
+            ...input.config,
+          }),
+      })
+      if (attempt) attempts.push({ candidate, attempt })
+    }
+    return attempts
+  }
 
   const config = {
     obstacles: input.obstacles,

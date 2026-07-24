@@ -1,7 +1,4 @@
-import type {
-  PlannedAttemptTarget,
-  RegressionAttempt,
-} from "../internal-types"
+import type { PlannedAttemptTarget, RegressionAttempt } from "../internal-types"
 import { getRegressionAttemptKey } from "./getRegressionAttemptKey"
 
 /** Divide a target across selected attempts without exceeding their capacities. */

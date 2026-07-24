@@ -20,7 +20,9 @@ export const buildAttemptGraphics = (input: {
     graphics: LengthMatchingGraphics
   }): void => {
     const candidate =
-      selectedInput.activePair?.candidates[selectedInput.activePair.candidateIndex]
+      selectedInput.activePair?.candidates[
+        selectedInput.activePair.candidateIndex
+      ]
     if (!candidate) return
     const route = selectedInput.routes[candidate.routeIndex]
     if (!route) return

@@ -26,8 +26,10 @@ export const evaluateMeanderCandidate = (input: {
   }): number[] => {
     if (profile.heightProfile !== "tapered")
       return Array<number>(profile.toothCount).fill(1)
-    const weights = Array.from({ length: profile.toothCount }, (_, toothIndex) =>
-      Math.sin((Math.PI * (toothIndex + 1)) / (profile.toothCount + 1)),
+    const weights = Array.from(
+      { length: profile.toothCount },
+      (_, toothIndex) =>
+        Math.sin((Math.PI * (toothIndex + 1)) / (profile.toothCount + 1)),
     )
     const maximumWeight = Math.max(...weights)
     return weights.map((weight) => weight / maximumWeight)
@@ -80,11 +82,7 @@ export const evaluateMeanderCandidate = (input: {
   }): { toothDepths: number[]; depthLevel: number } => {
     let lowerDepthLevel = 0
     let upperDepthLevel = input.candidate.maximumDepth
-    for (
-      let iteration = 0;
-      iteration < DEPTH_SEARCH_ITERATIONS;
-      iteration++
-    ) {
+    for (let iteration = 0; iteration < DEPTH_SEARCH_ITERATIONS; iteration++) {
       const depthLevel = (lowerDepthLevel + upperDepthLevel) / 2
       const toothDepths = profile.maximumToothDepths.map(
         (maximumDepth, toothIndex) =>
@@ -110,19 +108,17 @@ export const evaluateMeanderCandidate = (input: {
         upperDepthLevel = depthLevel
         continue
       }
-      if (addedLength < profile.targetAddedLength)
-        lowerDepthLevel = depthLevel
+      if (addedLength < profile.targetAddedLength) lowerDepthLevel = depthLevel
       else upperDepthLevel = depthLevel
     }
     const depthLevel = (lowerDepthLevel + upperDepthLevel) / 2
     return {
       depthLevel,
-      toothDepths: profile.maximumToothDepths.map(
-        (maximumDepth, toothIndex) =>
-          Math.min(
-            maximumDepth,
-            depthLevel * profile.toothHeightWeights[toothIndex]!,
-          ),
+      toothDepths: profile.maximumToothDepths.map((maximumDepth, toothIndex) =>
+        Math.min(
+          maximumDepth,
+          depthLevel * profile.toothHeightWeights[toothIndex]!,
+        ),
       ),
     }
   }

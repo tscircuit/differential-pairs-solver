@@ -25,8 +25,10 @@ export const evaluateMinimumMeanderCandidate = (input: {
   }): number[] => {
     if (profile.heightProfile !== "tapered")
       return Array<number>(profile.toothCount).fill(1)
-    const weights = Array.from({ length: profile.toothCount }, (_, toothIndex) =>
-      Math.sin((Math.PI * (toothIndex + 1)) / (profile.toothCount + 1)),
+    const weights = Array.from(
+      { length: profile.toothCount },
+      (_, toothIndex) =>
+        Math.sin((Math.PI * (toothIndex + 1)) / (profile.toothCount + 1)),
     )
     const maximumWeight = Math.max(...weights)
     return weights.map((weight) => weight / maximumWeight)

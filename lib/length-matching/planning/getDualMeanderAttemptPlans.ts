@@ -1,15 +1,10 @@
-import type {
-  MinimumAttempt,
-  MinimumAttemptPlan,
-} from "../dual-meander-plan"
+import type { MinimumAttempt, MinimumAttemptPlan } from "../dual-meander-plan"
 import { getMeanderPlanQualityScore } from "./getMeanderPlanQualityScore"
 
 export const getDualMeanderAttemptPlans = (
   minimumAttempts: MinimumAttempt[],
 ): MinimumAttemptPlan[] => {
-  const getMinimumAttemptStyleKey = (
-    minimumAttempt: MinimumAttempt,
-  ): string =>
+  const getMinimumAttemptStyleKey = (minimumAttempt: MinimumAttempt): string =>
     [
       minimumAttempt.candidate.toothCount,
       minimumAttempt.candidate.placement,

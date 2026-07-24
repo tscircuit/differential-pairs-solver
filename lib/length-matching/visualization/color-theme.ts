@@ -18,9 +18,7 @@ export type LengthMatchingColorTheme = {
 export const createLengthMatchingColorTheme = (
   colorMap: Record<string, string>,
 ): LengthMatchingColorTheme => {
-  const getDeterministicConnectionColor = (
-    connectionName: string,
-  ): string => {
+  const getDeterministicConnectionColor = (connectionName: string): string => {
     if (!connectionName) return "rgba(0, 0, 0, 0.5)"
     const characterSum = connectionName
       .split("")
