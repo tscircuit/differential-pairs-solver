@@ -44,8 +44,10 @@ you can debug—it is silently wrong routed geometry.
 ## Code Style Guidelines
 
 - Use **TypeScript** with strict typing enabled.
-- **Naming**: Use kebab-case for filenames, camelCase for variables/functions,
-  and PascalCase for classes/interfaces.
+- **Naming**: Name each TypeScript implementation file after its single function
+  or class, preserving the symbol's casing (for example, `calculateLength.ts`
+  or `LengthMatchingSolver.ts`). Use camelCase for variables/functions and
+  PascalCase for classes/interfaces.
 - **Imports**: Organize imports according to Biome rules when formatting is
   explicitly requested.
 - **Error handling**: Use try/catch for recoverable I/O at the edges; do not
@@ -64,7 +66,15 @@ you can debug—it is silently wrong routed geometry.
   and return values have explicit types.
 - Always define function return types in new code.
 - Structure types so invalid states are not representable where practical.
-- ONE TEST PER FILE.
+
+## File Organization Rules
+
+- Every TypeScript file must contain fewer than 500 lines of code.
+- Keep exactly one test case per test file.
+- A folder may contain at most five files. When a folder would exceed this
+  limit, create clearly named subfolders and categorize the files by purpose.
+- Keep only one function or class per TypeScript implementation file. The
+  filename must exactly match that function or class name, including casing.
 
 ## Architecture
 
